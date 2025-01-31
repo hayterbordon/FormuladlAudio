@@ -1,0 +1,8 @@
+requests
+yt-dlp
+librosa
+numpy
+scikit-learn
+pydub
+Flask
+gunicorn
