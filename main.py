@@ -51,6 +51,7 @@ def descargar_audio_youtube(video_url, output_path):
             "preferredquality": "192",
         }],
         "quiet": True,
+        "cookiefile": "cookies.txt"  # Añadir la ruta al archivo de cookies
     }
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
