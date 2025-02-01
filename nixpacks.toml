@@ -3,14 +3,14 @@ apt_pkgs = ["ffmpeg"]
 
 [phases.install]
 commands = [
-  "pip install -r requirements.txt"
+  "pip install -r requirements.txt",
+  "pip install gunicorn"  # Asegurar la instalación de gunicorn
 ]
 
 [phases.build]
 commands = [
   "echo '🔍 Cargando configuración...'",
-  "if [ -f config.env ]; then export $(cat config.env | xargs); echo 'API_KEY cargada desde config.env'; else echo '⚠️ No se encontró el archivo config.env'; fi",
-  "pip install gunicorn"
+  "if [ -f config.env ]; then export $(cat config.env | xargs); echo 'API_KEY cargada desde config.env'; else echo '⚠️ No se encontró el archivo config.env'; fi"
 ]
 
 [phases.start]
