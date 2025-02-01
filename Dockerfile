@@ -1,6 +1,9 @@
 # Usar una imagen base oficial de Python
 FROM python:3.9-slim
 
+# Instalar ffmpeg
+RUN apt-get update && apt-get install -y ffmpeg
+
 # Establecer el directorio de trabajo en el contenedor
 WORKDIR /app
 
@@ -20,4 +23,4 @@ ENV PORT 8080
 EXPOSE 8080
 
 # Comando para ejecutar la aplicación
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8080", "main:app"]
+CMD exec gunicorn --bind :$PORT --workers 4 main:app
