@@ -20,10 +20,12 @@ coincidencias = []
 no_coincidencias = []
 procesando = False
 
+# Clave de API de YouTube
+API_KEY = "AIzaSyAsNHV8YaMpNma8xcGk-Y_YldzYnarCTtQ"
+
 app = Flask(__name__)
 
 def buscar_videos_youtube(query, max_resultados=1):
-    API_KEY = os.environ.get("API_KEY")  # Obtener la API Key desde la variable de entorno
     if not API_KEY:
         raise ValueError("API_KEY no está configurada en las variables de entorno.")
     
