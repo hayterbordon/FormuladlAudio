@@ -41,39 +41,6 @@ def buscar_videos_youtube(query, max_resultados=1):
     videos = [{"videoId": item["id"]["videoId"], "title": item["snippet"]["title"]} for item in resultados.get("items", [])]
     return videos
 
-def descargar_audio_youtube(video_url, output_path):
-    ydl_opts = {
-        "format": "bestaudio/best",
-        "outtmpl": output_path,
-        "postprocessors": [{
-            "key": "FFmpegExtractAudio",
-            "preferredcodec": "mp3",
-            "preferredquality": "192",
-        }],
-        "quiet": True,
-        "cookiefile": "cookies.txt"  # Añadir la ruta al archivo de cookies
-    }
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(video_url, download=True)
-            audio_file = output_path % {'id': info['id'], 'ext': 'mp3'}
-            if Path(audio_file).exists():
-                print(f"✅ Audio descargado: {audio_file}")
-                return audio_file
-            else:
-                print(f"❌ No se encontró el archivo de audio descargado: {audio_file}")
-                return None
-    except Exception as e:
-        print(f"❌ Error al descargar el audio de {video_url}: {e}")
-        return None
-
-def obtener_fragmento_grande(video_url, max_duration=FRAGMENT_DURATION):
-    audio_path = descargar_audio_youtube(video_url, str(Path("audio_temp") / "%(id)s.%(ext)s"))
-    if audio_path:
-        return open(audio_path, "rb")
-    else:
-        return None
-
 def convertir_a_wav(audio_stream):
     audio = AudioSegment.from_file(audio_stream)
     wav_stream = BytesIO()
@@ -107,6 +74,25 @@ def comparar_caracteristicas(caracteristicas_referencia, caracteristicas_video):
     print(f"Similitud calculada: {similitud}")
     return similitud
 
+def obtener_fragmento_grande(video_url):
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'noplaylist': True,
+        'quiet': True,
+        'outtmpl': 'audio_temp/%(id)s.%(ext)s',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }],
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info_dict = ydl.extract_info(video_url, download=False)
+        audio_url = info_dict['url']
+        response = requests.get(audio_url)
+        audio_stream = BytesIO(response.content)
+        return audio_stream
+
 def eliminar_archivo_temporal(filepath):
     try:
         Path(filepath).unlink()
@@ -114,7 +100,7 @@ def eliminar_archivo_temporal(filepath):
     except Exception as e:
         print(f"❌ Error al eliminar el archivo temporal: {filepath}, {e}")
 
-def detectar_uso_no_autorizado(query, referencia_url, max_resultados):
+def detectar_uso_no_autorizado(query, referencia_path, max_resultados):
     global coincidencias, no_coincidencias, procesando
     coincidencias = []
     no_coincidencias = []
@@ -127,13 +113,11 @@ def detectar_uso_no_autorizado(query, referencia_url, max_resultados):
         procesando = False
         return
 
-    referencia_stream = obtener_fragmento_grande(referencia_url)
-    if not referencia_stream:
-        print("❌ No se pudo obtener el fragmento grande del audio de referencia.")
-        procesando = False
-        return
-
+    referencia_stream = open(referencia_path, "rb")
     caracteristicas_referencia = extraer_caracteristicas(referencia_stream)
+    referencia_stream.close()
+    eliminar_archivo_temporal(referencia_path)
+
     if caracteristicas_referencia is None or not np.any(caracteristicas_referencia):
         print("❌ No se pudieron extraer las características de la canción de referencia.")
         procesando = False
@@ -172,8 +156,10 @@ def index():
     if request.method == 'POST':
         query = request.form['query']
         max_resultados = int(request.form['max_resultados'])
-        referencia_url = request.form['referencia_url']
-        threading.Thread(target=detectar_uso_no_autorizado, args=(query, referencia_url, max_resultados)).start()
+        file = request.files['file']
+        file_path = Path("uploads") / file.filename
+        file.save(file_path)
+        threading.Thread(target=detectar_uso_no_autorizado, args=(query, file_path, max_resultados)).start()
         return jsonify({"status": "Procesando..."})
     return render_template('index.html')
 
