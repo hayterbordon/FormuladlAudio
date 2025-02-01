@@ -87,11 +87,9 @@ def obtener_fragmento_grande(video_url):
         }],
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info_dict = ydl.extract_info(video_url, download=False)
-        audio_url = info_dict['url']
-        response = requests.get(audio_url)
-        audio_stream = BytesIO(response.content)
-        return audio_stream
+        info_dict = ydl.extract_info(video_url, download=True)
+        audio_file_path = ydl.prepare_filename(info_dict).replace('.webm', '.mp3').replace('.m4a', '.mp3')
+        return open(audio_file_path, 'rb')
 
 def eliminar_archivo_temporal(filepath):
     try:
