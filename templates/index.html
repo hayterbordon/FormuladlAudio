@@ -150,7 +150,7 @@
     <div class="container">
         <img class="logo" src="https://formuladl.com/wp-content/uploads/2024/06/LOGOTIPO-FORMULA-DIGITAL-2048x666.png" alt="FormulaDL Logo">
         <h1>FormulaDL - Buscador de Música</h1>
-        <form method="post" onsubmit="submitForm(event)">
+        <form method="post" enctype="multipart/form-data" onsubmit="submitForm(event)">
             <div>
                 <label for="query">Término de búsqueda en YouTube:</label>
                 <input type="text" id="query" name="query" required>
@@ -160,10 +160,10 @@
                 <input type="number" id="max_resultados" name="max_resultados" min="1" max="100" required>
             </div>
             <div>
-                <label for="referencia_url">Enlace de YouTube de referencia:</label>
-                <input type="url" id="referencia_url" name="referencia_url" required>
+                <label for="file">Subir archivo MP3:</label>
+                <input type="file" id="file" name="file" accept=".mp3" required>
             </div>
-            <button type="submit">Buscar</button>
+            <button type="submit">Subir y Buscar</button>
         </form>
 
         <div id="status"></div>
