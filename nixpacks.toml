@@ -1,5 +1,5 @@
 [phases.setup]
-apt_pkgs = ["ffmpeg"]
+apt_pkgs = ["ffmpeg", "libsndfile1"]  # Asegúrate de instalar ffmpeg y libsndfile1
 
 [phases.install]
 commands = [
