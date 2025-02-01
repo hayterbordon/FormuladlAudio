@@ -26,4 +26,4 @@ ENV PORT 8080
 EXPOSE 8080
 
 # Comando para ejecutar la aplicación
-CMD exec gunicorn --bind :$PORT --workers 4 main:app
+CMD exec gunicorn --bind :$PORT --workers 2 --timeout 120 main:app
