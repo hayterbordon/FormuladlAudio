@@ -14,10 +14,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Establecer las variables de entorno
-ENV PORT=8080
+ENV PORT 8080
 
 # Exponer el puerto en el que la aplicación se ejecutará
-EXPOSE $PORT
+EXPOSE 8080
 
 # Comando para ejecutar la aplicación
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:$PORT", "main:app"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8080", "main:app"]
